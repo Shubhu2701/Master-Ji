@@ -1,0 +1,3 @@
+loop
+spotify
+url playing

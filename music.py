@@ -19,9 +19,9 @@ class music(commands.Cog):
         with youtube_dl.YoutubeDL(self.YDL_OPTIONS) as ydl:
             try :
                 try:
-                    info=ydl.extract_info('ytsearch:%s'%item,download=False)['entries'][0]
-                except:
                     info=ydl.extract_info(item,download=False)
+                except:
+                    info=ydl.extract_info('ytsearch:%s'%item,download=False)['entries'][0]
             except Exception:
                 return False
         return {'source': info['formats'][0]['url'],'title':info['title']}

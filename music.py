@@ -17,11 +17,11 @@ class music(commands.Cog):
     
     def search_yt(self,item):
         with youtube_dl.YoutubeDL(self.YDL_OPTIONS) as ydl:
-            try:
-                info=ydl.extract_info('ytsearch:%s'%item,download=False)['entries'][0]
-                raise Failed()
-            except Failed:
-                info=ydl.extract_info(item,download=False)
+            try :
+                try:
+                    info=ydl.extract_info('ytsearch:%s'%item,download=False)['entries'][0]
+                except:
+                    info=ydl.extract_info(item,download=False)
             except Exception:
                 return False
         return {'source': info['formats'][0]['url'],'title':info['title']}
@@ -33,7 +33,7 @@ class music(commands.Cog):
             curr_url=self.queue[0][0]['source']
             await self.send('Playing '+self.queue[0][0]['title'])
             self.queue.pop(0)
-            self.vc.play(discord.FFmpegOpusAudio.from_probe(curr_url,**self.FFMPEG_OPTIONS),after=lambda x:self.nexxt())
+            self.vc.play(await discord.FFmpegOpusAudio.from_probe(curr_url,**self.FFMPEG_OPTIONS),after=lambda x:self.nexxt())
         else:
             self.playing=False
 
@@ -50,7 +50,7 @@ class music(commands.Cog):
                 await self.vc.move_to(self.queue[0][1])
     
             self.queue.pop(0)
-            self.vc.play(discord.FFmpegOpusAudio.from_probe(curr_url,**self.FFMPEG_OPTIONS),after=lambda x:self.nexxt())
+            self.vc.play(await discord.FFmpegOpusAudio.from_probe(curr_url,**self.FFMPEG_OPTIONS),after=lambda x:self.nexxt())
         else:
             self.playing=False
             
@@ -99,6 +99,7 @@ class music(commands.Cog):
     @commands.command(name='skip',aliases=['s','SKIP','Skip','S'],help='Skips the current song being playing.')
     async def skip(self,ctx,*args):
         if self.vc!=None and self.vc:
+            await ctx.send('Song Skipped ⏩')
             self.vc.stop()
             await self.moozic(ctx)          
             
@@ -108,7 +109,6 @@ class music(commands.Cog):
         for i in range(0,len(self.queue)):
             if i>10: break
             string+='`'+self.queue[i][0]['title']+'`'+'\n'
-        
         if string!='':
             await ctx.send(string)
         else:

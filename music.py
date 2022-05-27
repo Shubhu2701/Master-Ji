@@ -41,28 +41,31 @@ class music(commands.Cog):
         if len(self.queue)>0:
             self.playing=True
             curr_url=self.queue[0][0]['source']
-            if self.vc == None or not self.vc.is_connected():
-                self.vc = await self.queue[0][1].connect()
-                if self.vc==None:
-                    await ctx.send("Could not connect to the voice channel.")
-                    return
-            else:
-                await self.vc.move_to(self.queue[0][1])
-    
             self.queue.pop(0)
             self.vc.play(await discord.FFmpegOpusAudio.from_probe(curr_url,**self.FFMPEG_OPTIONS),after=lambda x:self.nexxt())
         else:
             self.playing=False
             
-    @commands.command(name='play',aliases=['p','PLAY','Play','P'],help='Plays the provided song from youtube.')
-    async def play(self,ctx,*args):
-        url=' '.join(args)
+    @commands.command(name='join',aliases=['j','summon','JOIN','Join','Summon','SUMMON','Cum','cum','CUM'],help='Joins the voice channel.')       
+    async def summon(self,ctx):
         try:
             voice_channel=ctx.author.voice.channel
         except Exception:
             await ctx.send('Join a voice channel!')
-            return
-            
+            return False
+        if self.vc == None or not self.vc.is_connected():
+            self.vc = await voice_channel.connect()
+        if self.vc==None:
+            await ctx.send("Could not connect to the voice channel.")
+            return False
+        else:
+            await self.vc.move_to(voice_channel)
+            return True
+
+    @commands.command(name='play',aliases=['p','PLAY','Play','P'],help='Plays the provided song from youtube.')
+    async def play(self,ctx,*args):
+        url=' '.join(args)
+        await self.summon(ctx)
         if self.paused:
             self.vc.resume()
         else:
@@ -71,7 +74,7 @@ class music(commands.Cog):
                 await ctx.send('Couldn\'t play the song, Incorrect format or url.')
             else:
                 await ctx.send('Song added to the queue.'+'\n'+'`'+song['title']+'`')
-                self.queue.append([song,voice_channel])
+                self.queue.append([song,self.vc])
                 if self.playing==False:
                     await self.moozic(ctx)
 

@@ -2,8 +2,9 @@
 # Master-Ji 
 <br /><img src="MasterJi.png" width="200"> <br />
 <br /><br />Master Ji is a discord music bot with many more features. <br />
-### Invite Link : 
+#### Invite Link : 
 https://discord.com/api/oauth2/authorize?client_id=978976140922355752&permissions=8&scope=bot <br />
+<br />Libraries used: discord.py, wavelink
 ## FEATURES ADDED: <br />
   <br />Basic text commands : hello, help <br />
   Joins voice channel <br />

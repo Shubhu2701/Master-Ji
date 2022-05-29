@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import youtube_dl
 import wavelink
 
 class music(commands.Cog):
@@ -142,22 +141,9 @@ class music(commands.Cog):
         await player.disconnect()
         mbed = discord.Embed(title="Disconnected", color=discord.Color.from_rgb(255, 255, 255))
         await ctx.send(embed=mbed)
-        
-    @commands.command(name="stop")
-    async def stop_command(self, ctx: commands.Context):
-        player = wavelink.NodePool.get_node().get_player(ctx.guild)
-
-        if player is None:
-            return await ctx.send(embed=discord.Embed(title="Master Ji isn't connected to any voice channel.", color=discord.Color.from_rgb(255, 255, 255)))
-        
-        if player.is_playing():
-            await player.stop()
-            return await ctx.send(discord.Embed(title="Playback Stoped.", color=discord.Color.from_rgb(255, 255, 255)))
-        else:
-            return await ctx.send(embed=discord.Embed(title="Nothing Is playing right now.", color=discord.Color.from_rgb(255, 255, 255)))
     
     @commands.command(name='pause',aliases=['PAUSE','Pause'],help='Pauses the current song being playing.')
-    async def pause_command(self, ctx: commands.Context):
+    async def pause(self, ctx: commands.Context):
         player = wavelink.NodePool.get_node().get_player(ctx.guild)
 
         if player is None:
@@ -171,7 +157,7 @@ class music(commands.Cog):
                 return await ctx.send(embed=discord.Embed(title="Nothing Is playing right now.", color=discord.Color.from_rgb(255, 255, 255)))
     
     @commands.command(name='resume',aliases=['r','RESUME','Resume','R'],help='Resumes the current song being playing.')
-    async def resume_command(self, ctx: commands.Context):
+    async def resume(self, ctx: commands.Context):
         player = wavelink.NodePool.get_node().get_player(ctx.guild)
 
         if player is None:

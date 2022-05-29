@@ -1,3 +1,0 @@
-loop
-spotify
-url playing

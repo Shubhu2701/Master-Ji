@@ -12,8 +12,6 @@ requests = "^2.27.1"
 youtube_dl = "^2021.12.17"
 PyNaCl = "^1.5.0"
 ffmpeg = "^1.4"
-static-ffmpeg = "^2.2.0"
-python-ffmpeg = "^1.0.14"
 
 [tool.poetry.dev-dependencies]
 

@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from wavelink.ext import spotify
 import wavelink
 import datetime
 
@@ -13,7 +14,7 @@ class music(commands.Cog):
        
     async def node_connect(self):
         await self.client.wait_until_ready()
-        await wavelink.NodePool.create_node(bot=self.client,host='lavalinkinc.ml',port=443,password='incognito',https=True)
+        await wavelink.NodePool.create_node(bot=self.client,host='lavalinkinc.ml',port=443,password='incognito',https=True,spotify_client=spotify.SpotifyClient(client_id='8493d46fcce94ddba94686f245d1a9f3',client_secret='575abce2b48a4c3094ed0c2ca4888230'))
     
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node:wavelink.Node):
@@ -29,7 +30,7 @@ class music(commands.Cog):
         mbed=discord.Embed(title=f'Now Playing:\n{next_song.title}', description=f'Artist: {next_song.author}')
         mbed.add_field(name='Duration',value=f"`{datetime.timedelta(seconds=next_song.length)}`")
         mbed.url=next_song.uri
-        await ctx.send(embed=mbed) 
+        await self.context.send(embed=mbed) 
     
     async def check_vc(self,ctx:commands.Context):
         if self.player is None:
@@ -49,7 +50,14 @@ class music(commands.Cog):
                 await self.vc.resume()
                 mbed = discord.Embed(title="Playback resumed.", color=discord.Color.from_rgb(255, 255, 255))
             return await ctx.send(embed=mbed)
-        search = await wavelink.YouTubeTrack.search(query=search, return_first=True)
+        try:
+            search=await spotify.SpotifyTrack.search(query=search,return_first=True)
+            print('spotify search')
+            print(search.title) 
+        except Exception:
+            search=await wavelink.YouTubeTrack.search(query=search, return_first=True)
+            print('youtube search')
+            
         self.player = wavelink.NodePool.get_node().get_player(ctx.guild)
         if self.vc.queue.is_empty and not self.player.is_playing():
             await self.vc.play(search)
@@ -178,9 +186,9 @@ class music(commands.Cog):
     #         volume=100
     #     elif volume<0:
     #         volume=0
+    #     await self.vc.set_volume(volume)
+    #     return await ctx.send(embed=discord.Embed(title=f"Volume : {volume}", color=discord.Color.from_rgb(255, 255, 255))) 
         
-    #     await ctx.send(embed=discord.Embed(title=f"Volume : {volume}", color=discord.Color.from_rgb(255, 255, 255))) 
-    #     return await self.player.set_volume(volume)
     
     @commands.command(name='now',aliases=['n','NOW','Now','N','current','playing'],help='Displays the song playing currently.')
     async def now_playing(self, ctx:commands.Context):
@@ -194,8 +202,7 @@ class music(commands.Cog):
         mbed=discord.Embed(title=f'Now Playing: {self.vc.track.title}', description=f'Artist: {self.vc.track.author}')
         mbed.add_field(name='Duration',value=f"`{datetime.timedelta(seconds=self.vc.track.length)}`")
         mbed.url=self.vc.track.uri
-        # mbed.add_field(name='Extra Info',value="`Song URL: [Click here]("+str(self.vc.track.uri)+')`')
         return await ctx.send(embed=mbed)
-        
+    
 def setup(client):
     client.add_cog(music(client))

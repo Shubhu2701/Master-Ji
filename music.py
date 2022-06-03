@@ -14,7 +14,7 @@ class music(commands.Cog):
        
     async def node_connect(self):
         await self.client.wait_until_ready()
-        await wavelink.NodePool.create_node(bot=self.client,host='lavalinkinc.ml',port=443,password='incognito',https=True,spotify_client=spotify.SpotifyClient(client_id='8493d46fcce94ddba94686f245d1a9f3',client_secret='575abce2b48a4c3094ed0c2ca4888230'))
+        await wavelink.NodePool.create_node(bot=self.client,host='lavalinkinc.ml',port=443,password='incognito',https=True,spotify_client=spotify.SpotifyClient(client_id='CLIENT_ID',client_secret='CLIENT_SECRET'))
     
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node:wavelink.Node):

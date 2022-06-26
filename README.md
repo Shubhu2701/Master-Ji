@@ -19,7 +19,7 @@ https://discord.com/api/oauth2/authorize?client_id=978976140922355752&permission
 ## TO DO: <br /> 
   <br />
   Spotify song recommended playlist creation <br />
-  Chatbot <br />
+  Chatbot <br /><br /><br />
   
 Generate a .env file in the same directory and add the following to the file: 
 

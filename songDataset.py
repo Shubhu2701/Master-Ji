@@ -6,14 +6,11 @@ import time
 
 sp = authorization.authorize()
 genres = sp.recommendation_genre_seeds()
-n_recs = 100
-
 data_dict = {"id":[], "genre":[], "track_name":[], "artist_name":[],"features":[]}
 
-dataFrame=pd.DataFrame()
 for g in tqdm(genres):
     
-    recs = sp.recommendations(genres = [g], limit = n_recs)
+    recs = sp.recommendations(genres = [g], limit = 100)
     recs = eval(recs.json().replace("null", "-999").replace("false", "False").replace("true", "True"))["tracks"]
     for track in recs:
         data_dict["id"].append(track["id"])

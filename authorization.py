@@ -1,7 +1,11 @@
 import tekore as tk
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+clientID=os.getenv('ID')
+clientSecret=os.getenv('SECRET')
 
 def authorize():
-    CLIENT_ID = '8493d46fcce94ddba94686f245d1a9f3'
-    CLIENT_SECRET = '575abce2b48a4c3094ed0c2ca4888230'
-    app_token = tk.request_client_token(CLIENT_ID, CLIENT_SECRET)
+    app_token = tk.request_client_token(clientID, clientSecret)
     return tk.Spotify(app_token)

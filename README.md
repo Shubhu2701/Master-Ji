@@ -21,4 +21,8 @@ https://discord.com/api/oauth2/authorize?client_id=978976140922355752&permission
   Spotify song recommended playlist creation <br />
   Chatbot <br />
   
-  
+Generate a .env file in the same directory and add the following to the file: 
+
+TOKEN=YOUR_DISCORD_BOT_TOKEN
+ID=YOUR_SPOTIFY_CLIENT_ID
+SECRET=YOUR_SPOTIFY_CLIENT_SECRET

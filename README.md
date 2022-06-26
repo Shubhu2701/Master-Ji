@@ -14,9 +14,10 @@ https://discord.com/api/oauth2/authorize?client_id=978976140922355752&permission
   Youtube search playback <br />
   Loop <br />
   Song queue <br />
+  Spotify playback <br />
   Basic playback commands : skip, pause, resume, clear queue <br /> <br />
 ## TO DO: <br /> 
-  <br />Spotify playback <br />
+  <br />
   Spotify song recommended playlist creation <br />
   Chatbot <br />
   

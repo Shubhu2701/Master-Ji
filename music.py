@@ -27,11 +27,16 @@ class music(commands.Cog):
         
     async def node_connect(self):
         await self.client.wait_until_ready()
+<<<<<<< HEAD
         await wavelink.NodePool.create_node(bot=self.client,host='lavalink.oops.wtf',port=443,password='www.freelavalink.ga',https=True,spotify_client=spotify.SpotifyClient(client_id=clientID,client_secret=clientSecret))
         mongoClient=pymongo.MongoClient('localhost', 27017)
         db=mongoClient['MasterJi']
         self.coll=db['SongPlayed']
         
+=======
+        await wavelink.NodePool.create_node(bot=self.client,host='lavalinkinc.ml',port=443,password='incognito',https=True,spotify_client=spotify.SpotifyClient(client_id='CLIENT_ID',client_secret='CLIENT_SECRET'))
+    
+>>>>>>> ef3dfa7d4f5effc66aa926c76ecb129514f07d24
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node:wavelink.Node):
         print(f'Node {node.identifier} is ready.')

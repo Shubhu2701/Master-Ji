@@ -3,6 +3,15 @@ from discord.ext import commands
 from wavelink.ext import spotify
 import wavelink
 import datetime
+import pymongo
+from moodSongs import moodSongs
+import pandas as pd
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+clientID=os.getenv('ID')
+clientSecret=os.getenv('SECRET')
 
 class music(commands.Cog):
     def __init__(self, client):
@@ -11,11 +20,18 @@ class music(commands.Cog):
         self.vc=None
         self.context=None
         self.player=None
-       
+        self.coll=None
+        self.moodObj=moodSongs()
+        self.mud=False
+        self.currentTrack=None
+        
     async def node_connect(self):
         await self.client.wait_until_ready()
-        await wavelink.NodePool.create_node(bot=self.client,host='lavalinkinc.ml',port=443,password='incognito',https=True,spotify_client=spotify.SpotifyClient(client_id='8493d46fcce94ddba94686f245d1a9f3',client_secret='575abce2b48a4c3094ed0c2ca4888230'))
-    
+        await wavelink.NodePool.create_node(bot=self.client,host='lavalink.oops.wtf',port=443,password='www.freelavalink.ga',https=True,spotify_client=spotify.SpotifyClient(client_id=clientID,client_secret=clientSecret))
+        mongoClient=pymongo.MongoClient('localhost', 27017)
+        db=mongoClient['MasterJi']
+        self.coll=db['SongPlayed']
+        
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node:wavelink.Node):
         print(f'Node {node.identifier} is ready.')
@@ -23,6 +39,11 @@ class music(commands.Cog):
     
     @commands.Cog.listener()
     async def on_wavelink_track_end(self,player:wavelink.Player, track: wavelink.Track, reason):
+        if self.mud==True:
+            trackid=self.currentTrack[self.currentTrack.find('track/')+6:]
+            track_features = self.moodObj.sp.track_audio_features(trackid)
+            argu=str(track_features.valence*10)+' '+str(track_features.energy*10)
+            await self.mood(self.context,argu)
         if self.vc.loop:
             return await self.vc.play(track)
         next_song=self.vc.queue.get()
@@ -40,6 +61,33 @@ class music(commands.Cog):
             await ctx.send(embed=discord.Embed(title=f"Join a voice channel first.", color=discord.Color.from_rgb(255, 255, 255)))
             return False        
         
+    @commands.command(name='mood',aliases=['m','MOOD','Mood','M','playlike'],help='')
+    async def mood(self,ctx:commands.Context,*args):
+        
+        self.mud=True
+        query=' '.join(args)
+        if query=='off':
+            self.mud=False
+            await ctx.send(embed=discord.Embed(title="Mood play off", color=discord.Color.from_rgb(255, 255, 255)))
+        if 'spotify.com' in query:
+            trackid=query
+            trackid=trackid[trackid.find('track/')+6:trackid.find('?si')]
+            track_features = self.moodObj.sp.track_audio_features(trackid)
+            happy,energy=track_features.valence,track_features.energy
+            await ctx.send(embed=discord.Embed(title=f"Playing songs like {query}", color=discord.Color.from_rgb(255, 255, 255)))
+        else:
+            happy,energy=query.split(' ')
+            await ctx.send(embed=discord.Embed(title=f"Happy: {happy}\tEnergy: {energy}", color=discord.Color.from_rgb(255, 255, 255)))
+        
+        print(happy," and ",energy)
+        df=moodSongs.recommend(self=self.moodObj,happy=happy,energy=energy)
+        lis=df['id'].apply(lambda x : 'https://open.spotify.com/track/'+x).tolist()[0]
+        print(lis)
+        self.currentTrack=lis
+        await self.play(ctx,lis)
+        
+    # https://open.spotify.com/track/06JvOZ39sK8D8SqiqfaxDU?si=07753c48bffc417d
+    
     @commands.command(name='play',aliases=['p','PLAY','Play','P'],help='Plays the provided song from youtube.')
     async def play(self, ctx: commands.Context, *args):
         self.context=ctx
@@ -53,12 +101,20 @@ class music(commands.Cog):
         try:
             search=await spotify.SpotifyTrack.search(query=search,return_first=True)
             print('spotify search')
-            print(search.title) 
         except Exception:
             search=await wavelink.YouTubeTrack.search(query=search, return_first=True)
             print('youtube search')
-            
         self.player = wavelink.NodePool.get_node().get_player(ctx.guild)
+        rec={
+            'UserID':ctx.author.id,
+            'UserName':str(ctx.author),
+            'SongName':search.title,
+            'SongArtist':search.author,
+            'SongLength':str(datetime.timedelta(seconds=search.length)),
+            'SongURL':search.uri,
+            'Time':datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        }
+        self.coll.insert_one(rec)
         if self.vc.queue.is_empty and not self.player.is_playing():
             await self.vc.play(search)
             mbed=discord.Embed(title=f'Now Playing:\n{search.title}', description=f'Artist: {search.author}')
